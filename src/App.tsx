@@ -1,23 +1,34 @@
 import React from 'react';
-import { Button } from 'reakit';
+import {
+  Button,
+  unstable_Composite as Composite,
+  unstable_CompositeGroup as CompositeGroup,
+  unstable_CompositeItem as CompositeItem,
+  unstable_useCompositeState as useCompositeState,
+  unstable_CompositeStateReturn as CompositeStateReturn,
+} from 'reakit';
 import { World, nextState, toggleAlive, createWorld } from './game';
+import './App.css';
 
-const Cell: React.FunctionComponent<{
-  alive: boolean;
-  size: number;
-  x: number;
-  y: number;
-  setWorld: React.Dispatch<React.SetStateAction<World<boolean>>>;
-}> = ({ alive, size, x, y, setWorld }) => (
-  <Button
+const Cell: React.FunctionComponent<
+  CompositeStateReturn & {
+    alive: boolean;
+    size: number;
+    x: number;
+    y: number;
+    setWorld: React.Dispatch<React.SetStateAction<World<boolean>>>;
+  }
+> = ({ alive, size, x, y, setWorld, ...props }) => (
+  <CompositeItem
     as="div"
+    className="Cell"
     style={{
       background: alive ? 'black' : 'white',
       width: size,
       height: size,
-      border: '1px solid lightgrey',
     }}
     onClick={() => setWorld((world) => toggleAlive({ x, y }, world))}
+    {...props}
   />
 );
 
@@ -27,10 +38,11 @@ const WorldComponent: React.FunctionComponent<{
   world: World<boolean>;
   setWorld: React.Dispatch<React.SetStateAction<World<boolean>>>;
 }> = ({ world, setWorld }) => {
+  const composite = useCompositeState({ wrap: true });
   return (
-    <>
+    <Composite {...composite} role="grid" aria-label="World">
       {world.map((row, y) => (
-        <div key={y} style={{ display: 'flex' }}>
+        <CompositeGroup {...composite} key={y} style={{ display: 'flex' }}>
           {row.map((cell, x) => (
             <MemoCell
               key={x}
@@ -39,11 +51,12 @@ const WorldComponent: React.FunctionComponent<{
               alive={cell}
               size={10}
               setWorld={setWorld}
+              {...composite}
             />
           ))}
-        </div>
+        </CompositeGroup>
       ))}
-    </>
+    </Composite>
   );
 };
 
