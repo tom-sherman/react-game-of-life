@@ -68,6 +68,7 @@ function App() {
   return (
     <div className="App">
       <WorldComponent world={world} setWorld={setWorld} />
+      <Button onClick={() => setWorld(initialWorld)}>Reset</Button>
       <Button onClick={() => setWorld(nextState)}>Next</Button>
       <Button onClick={() => setStarted((s) => !s)}>
         {started ? 'Stop' : 'Start'}
