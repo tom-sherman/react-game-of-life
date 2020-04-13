@@ -5,8 +5,10 @@ import { World, nextState, toggleAlive, createWorld } from './game';
 const Cell: React.FunctionComponent<{
   alive: boolean;
   size: number;
-  onClick: () => void;
-}> = ({ alive, onClick, size }) => (
+  x: number;
+  y: number;
+  setWorld: React.Dispatch<React.SetStateAction<World<boolean>>>;
+}> = ({ alive, size, x, y, setWorld }) => (
   <Button
     as="div"
     style={{
@@ -15,14 +17,11 @@ const Cell: React.FunctionComponent<{
       height: size,
       border: '1px solid lightgrey',
     }}
-    onClick={onClick}
+    onClick={() => setWorld(world => toggleAlive({ x, y }, world))}
   />
 );
 
-const MemoCell = React.memo(
-  Cell,
-  (prev, next) => prev.alive === next.alive && prev.onClick === next.onClick
-);
+const MemoCell = React.memo(Cell);
 
 const WorldComponent: React.FunctionComponent<{
   world: World<boolean>;
@@ -35,9 +34,11 @@ const WorldComponent: React.FunctionComponent<{
           {row.map((cell, x) => (
             <MemoCell
               key={x}
+              x={x}
+              y={y}
               alive={cell}
               size={10}
-              onClick={() => setWorld(toggleAlive({ x, y }, world))}
+              setWorld={setWorld}
             />
           ))}
         </div>
