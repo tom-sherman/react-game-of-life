@@ -52,28 +52,42 @@ const initialWorld = createWorld(50);
 function App() {
   const [world, setWorld] = React.useState(initialWorld);
   const [started, setStarted] = React.useState(false);
+  const [simSpeed, setSimSpeed] = React.useState(50);
 
   React.useEffect(() => {
     let interval: number;
     if (started) {
       interval = window.setInterval(() => {
         setWorld(nextState);
-      }, 50);
+      }, simSpeed);
     }
 
     return () => {
       window.clearInterval(interval);
     };
-  }, [started]);
+  }, [started, simSpeed]);
 
   return (
     <div className="App">
       <WorldComponent world={world} setWorld={setWorld} />
-      <Button onClick={() => setWorld(initialWorld)}>Reset</Button>
-      <Button onClick={() => setWorld(nextState)}>Next</Button>
-      <Button onClick={() => setStarted((s) => !s)}>
-        {started ? 'Stop' : 'Start'}
-      </Button>
+      <div>
+        <Button onClick={() => setWorld(initialWorld)}>Reset</Button>
+        <Button onClick={() => setWorld(nextState)}>Next</Button>
+        <Button onClick={() => setStarted((s) => !s)}>
+          {started ? 'Stop' : 'Start'}
+        </Button>
+      </div>
+      <label>
+        Simulation speed: {simSpeed}ms
+        <input
+          type="range"
+          min={20}
+          max={500}
+          step="5"
+          value={simSpeed}
+          onChange={(event) => setSimSpeed(parseInt(event.target.value))}
+        />
+      </label>
     </div>
   );
 }
