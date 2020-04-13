@@ -17,7 +17,7 @@ const Cell: React.FunctionComponent<{
       height: size,
       border: '1px solid lightgrey',
     }}
-    onClick={() => setWorld(world => toggleAlive({ x, y }, world))}
+    onClick={() => setWorld((world) => toggleAlive({ x, y }, world))}
   />
 );
 
