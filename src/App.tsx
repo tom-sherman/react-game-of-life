@@ -12,6 +12,7 @@ import './App.css';
 
 const Cell: React.FunctionComponent<
   CompositeStateReturn & {
+    id: string;
     alive: boolean;
     size: number;
     x: number;
@@ -32,29 +33,74 @@ const Cell: React.FunctionComponent<
   />
 );
 
-const MemoCell = React.memo(Cell);
+const MemoCell = React.memo(Cell, (prev, next) => {
+  if (prev.alive !== next.alive) return false;
+  if (prev.size !== next.size) return false;
+  if (prev.x !== next.x) return false;
+  if (prev.y !== next.y) return false;
+  if (prev.id !== next.id) return false;
+  if (next.id === prev.currentId || next.id === next.currentId) return false;
+  return true;
+});
+
+const Row: React.FunctionComponent<
+  CompositeStateReturn & {
+    id: string;
+    row: readonly boolean[];
+    currentGroupId?: string | null;
+    y: number;
+    setWorld: React.Dispatch<React.SetStateAction<World<boolean>>>;
+  }
+> = ({ row, currentGroupId, setWorld, y, ...props }) => {
+  return (
+    <CompositeGroup style={{ display: 'flex' }} {...props}>
+      {row.map((cell, x) => (
+        <MemoCell
+          {...props}
+          key={x}
+          id={`cell-${y}-${x}`}
+          x={x}
+          y={y}
+          alive={cell}
+          size={10}
+          setWorld={setWorld}
+        />
+      ))}
+    </CompositeGroup>
+  );
+};
+
+const MemoRow = React.memo(Row, (prev, next) => {
+  if (prev.row !== next.row) return false;
+  if (prev.y !== next.y) return false;
+  const prevGroupId = prev.currentGroupId;
+  const nextGroupId = next.currentGroupId;
+  if (prev.id !== next.id) return false;
+  if (next.id === prevGroupId || next.id === nextGroupId) return false;
+  return true;
+});
 
 const WorldComponent: React.FunctionComponent<{
   world: World<boolean>;
   setWorld: React.Dispatch<React.SetStateAction<World<boolean>>>;
 }> = ({ world, setWorld }) => {
   const composite = useCompositeState({ wrap: true });
+  const currentItem = React.useMemo(
+    () => composite.items.find((item) => item.id === composite.currentId),
+    [composite.items, composite.currentId]
+  );
   return (
     <Composite {...composite} role="grid" aria-label="World">
       {world.map((row, y) => (
-        <CompositeGroup {...composite} key={y} style={{ display: 'flex' }}>
-          {row.map((cell, x) => (
-            <MemoCell
-              key={x}
-              x={x}
-              y={y}
-              alive={cell}
-              size={10}
-              setWorld={setWorld}
-              {...composite}
-            />
-          ))}
-        </CompositeGroup>
+        <MemoRow
+          {...composite}
+          key={y}
+          id={`row-${y}`}
+          y={y}
+          row={row}
+          currentGroupId={currentItem && currentItem.groupId}
+          setWorld={setWorld}
+        />
       ))}
     </Composite>
   );

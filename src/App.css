@@ -42,4 +42,5 @@
 }
 .Cell:focus {
   border-color: darkturquoise;
+  z-index: 2;
 }
