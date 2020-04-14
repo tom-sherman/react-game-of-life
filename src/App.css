@@ -36,3 +36,11 @@
     transform: rotate(360deg);
   }
 }
+
+.Cell {
+  border: 1px solid lightgrey;
+}
+.Cell:focus {
+  border-color: darkturquoise;
+  z-index: 2;
+}
